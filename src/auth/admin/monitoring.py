@@ -91,7 +91,7 @@ class SystemMonitor:
         try:
             # Try to connect to auth API health endpoint
             response = requests.get(
-                "http://localhost:8000/health", 
+                "https://elevenlabs-auth-backend.onrender.com/health", 
                 timeout=5
             )
             
