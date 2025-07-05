@@ -42,11 +42,11 @@ security = HTTPBearer(auto_error=False)
 
 # Global database instance với cấu hình đúng
 auth_db = AuthDatabaseManager(
-    host="localhost",
+    host="dpg-d1kldjre5dus73enuikg-a",
     port=5432,
-    database="elevenlabs_auth",
-    username="postgres",
-    password="123456"  # Sử dụng đúng password PostgreSQL
+    database="elevenlabs_auth_db",
+    username="elevenlabs_auth_db_user",
+    password="vVCP9zqfRfcFOD2OMHS8PJKxHpALAq07"
 )
 
 # Pydantic models
