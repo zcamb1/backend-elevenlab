@@ -29,7 +29,7 @@ class AdminWebInterface:
     Web-based admin interface cho authentication system management
     """
     
-    def __init__(self, database_url: str = None, admin_username: str = "admin", admin_password: str = "admin123"):
+    def __init__(self, database_url: str = "postgresql://elevenlabs_auth_db_user:vVCP9zqfRfcFOD2OMHS8PJKxHpALAq07@dpg-d1kldjre5dus73enuikg-a/elevenlabs_auth_db", admin_username: str = "admin", admin_password: str = "admin123"):
         self.database_url = database_url
         self.admin_username = admin_username
         self.admin_password_hash = hashlib.sha256(admin_password.encode()).hexdigest()
