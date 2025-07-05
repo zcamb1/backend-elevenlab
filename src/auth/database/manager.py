@@ -11,11 +11,11 @@ class AuthDatabaseManager:
     """Quản lý database PostgreSQL cho authentication system"""
     
     def __init__(self, 
-                 host: str = "localhost",
+                 host: str = "dpg-d1kldjre5dus73enuikg-a",
                  port: int = 5432,
-                 database: str = "elevenlabs_auth",
-                 username: str = "postgres",
-                 password: str = "postgres"):
+                 database: str = "elevenlabs_auth_db",
+                 username: str = "elevenlabs_auth_db_user",
+                 password: str = "vVCP9zqfRfcFOD2OMHS8PJKxHpALAq07"):
         self.host = host
         self.port = port
         self.database = database
