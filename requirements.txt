@@ -7,3 +7,4 @@ cryptography
 requests 
 psutil
 jinja2
+python-multipart
