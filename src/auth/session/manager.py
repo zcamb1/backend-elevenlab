@@ -293,15 +293,34 @@ class SessionManager:
         Logout user (revoke session và clear cache)
         """
         try:
+            # Log bắt đầu logout
+            if hasattr(self, 'logger'):
+                self.logger.info("[Logout] Bắt đầu logout user...")
+            else:
+                print("[Logout] Bắt đầu logout user...")
+
             # Get session token from cache if not provided
             if not session_token:
                 session_data = self.load_session()
                 if session_data:
                     session_token = session_data.get('session_token')
-            
+                    if hasattr(self, 'logger'):
+                        self.logger.info(f"[Logout] Lấy session_token từ cache: {session_token}")
+                    else:
+                        print(f"[Logout] Lấy session_token từ cache: {session_token}")
+                else:
+                    if hasattr(self, 'logger'):
+                        self.logger.warning("[Logout] Không tìm thấy session_data trong cache!")
+                    else:
+                        print("[Logout] Không tìm thấy session_data trong cache!")
+
             # Clear local cache first
             self.clear_session()
-            
+            if hasattr(self, 'logger'):
+                self.logger.info("[Logout] Đã clear local session cache.")
+            else:
+                print("[Logout] Đã clear local session cache.")
+
             # Revoke session on server
             if session_token:
                 try:
@@ -310,13 +329,37 @@ class SessionManager:
                         json={'session_token': session_token},
                         timeout=5
                     )
-                except:
-                    pass  # Ignore server errors during logout
-            
+                    if response.status_code == 200:
+                        if hasattr(self, 'logger'):
+                            self.logger.info(f"[Logout] Đã gửi request logout lên server, status: {response.status_code}, resp: {response.text}")
+                        else:
+                            print(f"[Logout] Đã gửi request logout lên server, status: {response.status_code}, resp: {response.text}")
+                    else:
+                        if hasattr(self, 'logger'):
+                            self.logger.warning(f"[Logout] Server trả về lỗi khi logout, status: {response.status_code}, resp: {response.text}")
+                        else:
+                            print(f"[Logout] Server trả về lỗi khi logout, status: {response.status_code}, resp: {response.text}")
+                except Exception as e:
+                    if hasattr(self, 'logger'):
+                        self.logger.error(f"[Logout] Lỗi khi gửi request logout lên server: {e}")
+                    else:
+                        print(f"[Logout] Lỗi khi gửi request logout lên server: {e}")
+            else:
+                if hasattr(self, 'logger'):
+                    self.logger.warning("[Logout] Không có session_token để gửi lên server!")
+                else:
+                    print("[Logout] Không có session_token để gửi lên server!")
+
+            if hasattr(self, 'logger'):
+                self.logger.info("[Logout] Logout hoàn tất.")
+            else:
+                print("[Logout] Logout hoàn tất.")
             return True
-            
         except Exception as e:
-            print(f"Logout error: {e}")
+            if hasattr(self, 'logger'):
+                self.logger.error(f"[Logout] Logout error: {e}")
+            else:
+                print(f"[Logout] Logout error: {e}")
             return False
     
     def get_current_session(self) -> Optional[Dict]:
