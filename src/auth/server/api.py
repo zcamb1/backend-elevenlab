@@ -78,6 +78,9 @@ class UserResponse(BaseModel):
     user_id: Optional[int] = None
     error: Optional[str] = None
 
+class LogoutRequest(BaseModel):
+    session_token: str
+
 # Helper functions
 def get_client_ip(request: Request) -> str:
     """Lấy IP address của client"""
@@ -244,16 +247,15 @@ async def verify_session(http_request: Request):
         )
 
 @app.post("/auth/logout")
-async def logout(session_token: str):
+async def logout(request: LogoutRequest):
     """Logout user (revoke session)"""
     try:
+        session_token = request.session_token
         success = auth_db.revoke_session(session_token)
-        
         return {
             "success": success,
             "message": "Logged out successfully" if success else "Session not found"
         }
-        
     except Exception as e:
         return {
             "success": False,
