@@ -41,18 +41,13 @@ app.add_middleware(
 security = HTTPBearer(auto_error=False)
 
 # Global database instance với cấu hình mới
-try:
-    auth_db = AuthDatabaseManager(
-        host="dpg-d21hsaidbo4c73e6ghe0-a",
-        port=5432,
-        database="elevenlabs_auth_db_l1le",
-        username="elevenlabs_auth_db_user",
-        password="Dta5busSXW4WPPaasBVvjtyTXT2fXU9t"
-    )
-    print("✅ Database manager initialized")
-except Exception as e:
-    print(f"⚠️  Database manager init error: {e}")
-    auth_db = None
+auth_db = AuthDatabaseManager(
+    host="dpg-d21hsaidbo4c73e6ghe0-a",
+    port=5432,
+    database="elevenlabs_auth_db_l1le",
+    username="elevenlabs_auth_db_user",
+    password="Dta5busSXW4WPPaasBVvjtyTXT2fXU9t"
+)
 
 # Pydantic models
 class LoginRequest(BaseModel):
@@ -135,27 +130,22 @@ async def health_check():
     """Health check endpoint"""
     try:
         # Test database connection
-        if auth_db:
-            conn = auth_db.get_connection()
-            if conn:
-                conn.close()
-                db_status = "healthy"
-            else:
-                db_status = "unhealthy"
+        conn = auth_db.get_connection()
+        if conn:
+            conn.close()
+            db_status = "healthy"
         else:
-            db_status = "not_initialized"
+            db_status = "unhealthy"
         
         return {
             "status": "healthy" if db_status == "healthy" else "degraded",
             "database": db_status,
-            "service": "ElevenLabs Authentication API",
             "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
         return {
             "status": "unhealthy",
             "error": str(e),
-            "service": "ElevenLabs Authentication API",
             "timestamp": datetime.now().isoformat()
         }
 
@@ -163,15 +153,17 @@ async def health_check():
 async def login(request: LoginRequest, http_request: Request):
     """User login endpoint"""
     try:
-        # Check if database is available
-        if not auth_db:
-            return LoginResponse(
-                success=False,
-                error="Database not available"
-            )
+        # Get device fingerprint từ client request hoặc generate local fallback
+        device_fingerprint = None
         
-        # Generate device fingerprint
-        device_fingerprint = generate_device_fingerprint()
+        if request.device_info and 'device_fingerprint' in request.device_info:
+            # Sử dụng device fingerprint từ client
+            device_fingerprint = request.device_info['device_fingerprint']
+            print(f"[Login] Using client device fingerprint: {device_fingerprint}")
+        else:
+            # Fallback: generate server-side (cảnh báo)
+            device_fingerprint = generate_device_fingerprint()
+            print(f"[Login] WARNING: Using server fingerprint as fallback: {device_fingerprint}")
         
         # Authenticate user
         auth_result = auth_db.authenticate_user(
@@ -233,8 +225,14 @@ async def verify_session(http_request: Request):
                 error="Missing session_token"
             )
         
-        # Generate current device fingerprint
-        device_fingerprint = generate_device_fingerprint()
+        # Get device fingerprint từ client request
+        device_fingerprint = request_body.get('device_fingerprint')
+        if not device_fingerprint:
+            # Fallback: generate server-side (cảnh báo)
+            device_fingerprint = generate_device_fingerprint()
+            print(f"[Verify] WARNING: Using server fingerprint as fallback: {device_fingerprint}")
+        else:
+            print(f"[Verify] Using client device fingerprint: {device_fingerprint}")
         
         # Verify session
         verify_result = auth_db.verify_session(
