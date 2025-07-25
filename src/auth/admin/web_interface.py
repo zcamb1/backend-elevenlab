@@ -29,7 +29,7 @@ class AdminWebInterface:
     Web-based admin interface cho authentication system management
     """
     
-    def __init__(self, database_url: str = "postgresql://elevenlabs_auth_db_user:vVCP9zqfRfcFOD2OMHS8PJKxHpALAq07@dpg-d1kldjre5dus73enuikg-a/elevenlabs_auth_db", admin_username: str = "admin", admin_password: str = "admin123"):
+    def __init__(self, database_url: str = "postgresql://elevenlabs_auth_db_user:Dta5busSXW4WPPaasBVvjtyTXT2fXU9t@dpg-d21hsaidbo4c73e6ghe0-a/elevenlabs_auth_db_l1le", admin_username: str = "admin", admin_password: str = "admin123"):
         self.database_url = database_url
         self.admin_username = admin_username
         self.admin_password_hash = hashlib.sha256(admin_password.encode()).hexdigest()
@@ -67,10 +67,14 @@ class AdminWebInterface:
         
         # Setup templates directory
         self.templates_dir = os.path.join(os.path.dirname(__file__), "templates")
-        os.makedirs(self.templates_dir, exist_ok=True)
         
-        with LoggedOperation("Initialize Admin Web Interface", self.logger):
-            self._create_templates()
+        try:
+            os.makedirs(self.templates_dir, exist_ok=True)
+            with LoggedOperation("Initialize Admin Web Interface", self.logger):
+                self._create_templates()
+        except Exception as e:
+            self.logger.warning(f"Template creation failed: {e}")
+            # Continue without templates - will use basic responses
     
     def _create_templates(self):
         """Create HTML templates for admin interface"""

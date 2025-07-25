@@ -26,7 +26,7 @@ class DeviceFingerprint:
             startupinfo.wShowWindow = subprocess.SW_HIDE
             kwargs['startupinfo'] = startupinfo
         
-        return self._run_subprocess_hidden(cmd, **kwargs)
+        return subprocess.run(cmd, **kwargs)
         
     def get_cpu_info(self) -> str:
         """Lấy thông tin CPU"""
@@ -167,17 +167,21 @@ class DeviceFingerprint:
                                 mac_addresses.append(mac.lower())
                                 
             else:  # Linux/macOS
-                import netifaces
-                for interface in netifaces.interfaces():
-                    try:
-                        addrs = netifaces.ifaddresses(interface)
-                        if netifaces.AF_LINK in addrs:
-                            for addr_info in addrs[netifaces.AF_LINK]:
-                                mac = addr_info.get('addr')
-                                if mac and mac != '00:00:00:00:00:00':
-                                    mac_addresses.append(mac.lower())
-                    except:
-                        continue
+                try:
+                    import netifaces
+                    for interface in netifaces.interfaces():
+                        try:
+                            addrs = netifaces.ifaddresses(interface)
+                            if netifaces.AF_LINK in addrs:
+                                for addr_info in addrs[netifaces.AF_LINK]:
+                                    mac = addr_info.get('addr')
+                                    if mac and mac != '00:00:00:00:00:00':
+                                        mac_addresses.append(mac.lower())
+                        except:
+                            continue
+                except ImportError:
+                    # Fallback if netifaces not available
+                    pass
                         
         except ImportError:
             # Fallback nếu không có netifaces

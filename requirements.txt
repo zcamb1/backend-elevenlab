@@ -8,3 +8,4 @@ requests
 psutil
 jinja2
 python-multipart
+netifaces

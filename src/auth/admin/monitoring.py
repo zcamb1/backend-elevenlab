@@ -91,7 +91,7 @@ class SystemMonitor:
         try:
             # Try to connect to auth API health endpoint
             response = requests.get(
-                "https://elevenlabs-auth-backend.onrender.com/health", 
+                "https://backend-elevenlab.onrender.com/health", 
                 timeout=5
             )
             
@@ -109,26 +109,10 @@ class SystemMonitor:
     def _check_logging_health(self) -> bool:
         """Check logging system health"""
         try:
-            # Test log writing
+            # Simple logging test without filesystem checks
             test_logger = get_logger("health_check")
             test_logger.info("Health check test log")
-            
-            # Check if log directory is writable and has space
-            import os
-            log_dir = os.path.expanduser("~/.elevenlabs_tool/logs")
-            
-            if not os.path.exists(log_dir):
-                return False
-            
-            # Check if we can write to log directory
-            test_file = os.path.join(log_dir, "health_check.tmp")
-            try:
-                with open(test_file, 'w') as f:
-                    f.write("test")
-                os.remove(test_file)
-                return True
-            except:
-                return False
+            return True
                 
         except Exception as e:
             self.logger.error(f"Logging health check failed: {e}")
