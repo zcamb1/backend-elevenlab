@@ -15,6 +15,34 @@ def create_safe_admin_app():
         admin_password = os.environ.get('ADMIN_PASSWORD', 'admin123')
         
         print("✅ Creating admin app...")
+        
+        # Initialize database FIRST
+        try:
+            from src.auth.database.manager import AuthDatabaseManager
+            import urllib.parse
+            
+            if database_url.startswith('postgresql://'):
+                parsed = urllib.parse.urlparse(database_url)
+                db_manager = AuthDatabaseManager(
+                    host=parsed.hostname,
+                    port=parsed.port or 5432,
+                    database=parsed.path.lstrip('/'),
+                    username=parsed.username,
+                    password=parsed.password
+                )
+            else:
+                db_manager = AuthDatabaseManager()
+            
+            print("🗄️  Initializing database tables...")
+            if db_manager.init_database():
+                print("✅ Database tables created successfully!")
+            else:
+                print("⚠️  Database init failed, but continuing...")
+                
+        except Exception as db_error:
+            print(f"⚠️  Database init error: {db_error}")
+            print("Continuing with app creation...")
+        
         app = create_admin_app(
             database_url=database_url,
             admin_username=admin_username,

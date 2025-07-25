@@ -10,8 +10,14 @@ def test_connection():
     print("🔍 Testing database connection...")
     print("=" * 50)
     
-    # Test connection
-    db = AuthDatabaseManager()
+    # Test connection with correct credentials
+    db = AuthDatabaseManager(
+        host="dpg-d21hsaidbo4c73e6ghe0-a",
+        port=5432,
+        database="elevenlabs_auth_db_l1le",
+        username="elevenlabs_auth_db_user",
+        password="Dta5busSXW4WPPaasBVvjtyTXT2fXU9t"
+    )
     
     try:
         conn = db.get_connection()
@@ -39,7 +45,13 @@ def test_init_database():
     print("\n🔧 Testing database initialization...")
     print("=" * 50)
     
-    db = AuthDatabaseManager()
+    db = AuthDatabaseManager(
+        host="dpg-d21hsaidbo4c73e6ghe0-a",
+        port=5432,
+        database="elevenlabs_auth_db_l1le",
+        username="elevenlabs_auth_db_user",
+        password="Dta5busSXW4WPPaasBVvjtyTXT2fXU9t"
+    )
     
     try:
         if db.init_database():
@@ -57,7 +69,13 @@ def create_test_user():
     print("\n👤 Creating test user...")
     print("=" * 50)
     
-    db = AuthDatabaseManager()
+    db = AuthDatabaseManager(
+        host="dpg-d21hsaidbo4c73e6ghe0-a",
+        port=5432,
+        database="elevenlabs_auth_db_l1le",
+        username="elevenlabs_auth_db_user",
+        password="Dta5busSXW4WPPaasBVvjtyTXT2fXU9t"
+    )
     
     try:
         # Check if user exists first

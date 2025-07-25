@@ -19,16 +19,31 @@ def create_safe_api_app():
         print(f"✅ API app imported successfully")
         print(f"🗄️  Database: {database_url.split('@')[1] if '@' in database_url else 'localhost'}")
         
-        # Try to initialize database
+        # Initialize database with correct credentials
         try:
             from src.auth.database.manager import AuthDatabaseManager
-            db = AuthDatabaseManager()
-            if db.init_database():
-                print("✅ Database initialized")
+            import urllib.parse
+            
+            if database_url.startswith('postgresql://'):
+                parsed = urllib.parse.urlparse(database_url)
+                db = AuthDatabaseManager(
+                    host=parsed.hostname,
+                    port=parsed.port or 5432,
+                    database=parsed.path.lstrip('/'),
+                    username=parsed.username,
+                    password=parsed.password
+                )
             else:
-                print("⚠️  Database init skipped")
+                db = AuthDatabaseManager()
+                
+            print("🗄️  Creating database tables...")
+            if db.init_database():
+                print("✅ Database tables created successfully!")
+            else:
+                print("⚠️  Database init failed, continuing...")
         except Exception as e:
             print(f"⚠️  Database init error: {e}")
+            print("Continuing with API startup...")
         
         return app
         
